@@ -38,6 +38,7 @@ class Contact(BaseModel):
     last_name: Optional[str] = None
 
 class ContactReview(BaseModel):
+    session_id: str
     contact_index: int
     add_to_mailchimp: bool
     add_to_pipedrive: bool
@@ -235,7 +236,7 @@ async def upload_csv(file: UploadFile = File(...)):
 @app.post("/review-contact")
 async def review_contact(review: ContactReview):
     """Review and process a single contact"""
-    session_id = review.session_id if hasattr(review, 'session_id') else None
+    session_id = review.session_id
     
     if not session_id or session_id not in active_reviews:
         raise HTTPException(status_code=404, detail="Review session not found")
@@ -277,4 +278,5 @@ async def get_contacts(session_id: str):
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8000) 
+    port = int(os.getenv("PORT", 8000))
+    uvicorn.run(app, host="0.0.0.0", port=port) 
